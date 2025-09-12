@@ -21,6 +21,7 @@ const Profile = () => {
     useEffect(() => {
         getData();
     }, []);
+    
 
     return (
         <div className={styles.container}>
