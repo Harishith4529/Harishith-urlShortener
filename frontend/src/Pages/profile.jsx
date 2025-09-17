@@ -25,10 +25,9 @@ const Profile = () => {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Profile Page</h1>
             {userData && (
                 <div className={styles.userInfo}>
-                    <h2 className={styles.title}>User Information</h2>
+                    <h2 className={styles.title}>User Profile</h2>
                     <img 
                         src={userData?.avatar || userData?.profilePicture || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"} 
                         alt="Profile" 
