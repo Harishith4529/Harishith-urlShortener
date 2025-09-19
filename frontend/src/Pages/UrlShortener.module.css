@@ -89,3 +89,56 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     cursor: pointer;
 }
+
+.generatedDetails {
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.1);
+}
+
+.generatedLabel {
+    font-weight: 600;
+    color: #764ba2;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.generatedUrl {
+    display: inline-block;
+    max-width: 100%;
+    word-break: break-all;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.1);
+    transition: box-shadow 0.2s;
+}
+
+.generatedUrl:hover {
+    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.18);
+    text-decoration: underline;
+}
+
+.generatedOriginalUrl {
+    display: inline-block;
+    max-width: 100%;
+    word-break: break-all;
+    background: rgba(230, 230, 250, 0.5);
+    color: #764ba2;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 1px 4px rgba(31, 38, 135, 0.08);
+    transition: box-shadow 0.2s;
+}
+
+.generatedOriginalUrl:hover {
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.12);
+    text-decoration: underline;
+}
