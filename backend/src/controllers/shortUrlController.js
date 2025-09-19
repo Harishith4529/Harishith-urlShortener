@@ -74,7 +74,6 @@ export const redirectToOriginalUrl = async (req, res) => {
 export const updateShortURLController = async (req, res) => {
     try {
         const { shortURL } = req.params;
-
         const updateData = req.body;
 
         const existed = await ShortURL.findOne({ shortCode: shortURL });
@@ -84,19 +83,14 @@ export const updateShortURLController = async (req, res) => {
                 message: "Short URL not exists" });
         }
 
-        // method 1
-        // Object.assign(existed, updateData);
-        // await existed.save();
-
-        // Method 2
         const updatedRecord = await ShortURL.findOneAndUpdate(
             { shortCode: shortURL },
-            { ...updatedData },
+            { ...updateData },
             { new: true }
         );
         res.status(200).json({
             message: "Short URL updated successfully",
-            data: updated
+            data: updatedRecord
         });
 
     } catch (error) {
