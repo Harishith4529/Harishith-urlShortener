@@ -128,13 +128,49 @@
 
 .controlsRow {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    padding: 0.5rem 1rem;
+    padding: 1rem 1.5rem;
+    background: rgba(255,255,255,0.8);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(31,38,135,0.10);
+    gap: 2rem;
+}
+
+.searchGroup {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 1rem;
     background: rgba(255,255,255,0.7);
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(31,38,135,0.08);
+    box-shadow: 0 2px 8px rgba(31,38,135,0.07);
+    padding: 0.5rem 1rem;
+}
+
+.paginationGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.7);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(31,38,135,0.07);
+    padding: 0.5rem 1rem;
+}
+
+.searchFieldSelect {
+    background: rgba(255,255,255,0.85);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(31,38,135,0.06);
+    min-width: 140px;
+}
+
+.searchInput {
+    background: rgba(255,255,255,0.85);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(31,38,135,0.06);
+    min-width: 220px;
 }
 
 .paginationRow {
@@ -156,9 +192,10 @@
 }
 
 .dropdownSelect {
-    background: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.85);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(31,38,135,0.08);
+    box-shadow: 0 2px 8px rgba(31,38,135,0.06);
+    min-width: 100px;
 }
 
 .editModalContent {
@@ -192,6 +229,14 @@
     margin-top: 1rem;
 }
 
+.editModalBody .mantine-Switch-root {
+    margin-bottom: 1rem;
+}
+
+.editModalBody .mantine-Button-root {
+    min-width: 100px;
+}
+
 .deleteModalContent {
     background: rgba(255,255,255,0.97);
     border-radius: 15px;
@@ -223,6 +268,10 @@
     margin-top: 1rem;
 }
 
+.deleteModalBody .mantine-Button-root {
+    min-width: 100px;
+}
+
 .deleteModalUrl {
     color: #4a4a4a;
     font-size: 1rem;
@@ -232,4 +281,48 @@
 
 .deleteModalCheckbox {
     margin-top: 1rem;
+}
+
+.inactiveShortUrl {
+    color: #aaa;
+    font-weight: 500;
+    background: rgba(245,101,101,0.08);
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.inactiveLabel {
+    color: #c53030;
+    font-size: 0.9em;
+    margin-left: 6px;
+}
+
+.modalPaper {
+    background: rgba(255,255,255,0.97);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+    padding: 2rem;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modalSection {
+    margin-bottom: 2rem;
+}
+
+.switchSection {
+    margin-top: 1.2rem;
+    margin-bottom: 1.2rem;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
 }

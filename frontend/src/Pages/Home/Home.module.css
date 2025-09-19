@@ -1,0 +1,71 @@
+.container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+}
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mainTitle {
+    color: white;
+    font-size: 4rem; /* Increased from 3rem */
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.profileCard {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.statsCard {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.statsCard:hover {
+    transform: translateY(-4px);
+}
+
+.statsIcon {
+    color: #667eea;
+}
+
+.statsIconGreen {
+    color: #51cf66;
+}
+
+.statsIconRed {
+    color: #ff6b6b;
+}
+
+.navCard {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.navCard:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+}
+
+.navIcon {
+    color: #764ba2;
+}
+
+.recentCard {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}

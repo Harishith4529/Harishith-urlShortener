@@ -15,9 +15,11 @@ export const createShortURL = async (req, res) => {
         }
 
         if(customUrl) {
-            const existing = await ShortURL.findOne({ shortCode: customUrl});
+            // Ensure customUrl is treated as string
+            const customUrlString = String(customUrl);
+            const existing = await ShortURL.findOne({ shortCode: customUrlString});
             if(!existing) {
-                newNanoId = customUrl;
+                newNanoId = customUrlString;
             }
         }
 
@@ -25,7 +27,7 @@ export const createShortURL = async (req, res) => {
         const newSortCode = await ShortURL.create({
             originalUrl,
             title,
-            shortCode: newNanoId,
+            shortCode: String(newNanoId), // Ensure it's stored as string
             expiresAt: expiryDate && String(expiryDate).length > 0 ? new Date(expiryDate) : null,
             userId,
             isActive: true
@@ -51,11 +53,23 @@ export const createShortURL = async (req, res) => {
 export const redirectToOriginalUrl = async (req, res) => {
     try {
         const { shortCode } = req.params;
+        
+        // Ensure shortCode is treated as string
+        const codeToSearch = String(shortCode);
 
-        const doc = await ShortURL.findOne({ shortCode });
+        const doc = await ShortURL.findOne({ shortCode: codeToSearch });
         if (!doc) {
             return res.status(404).json({ message: "Short URL not exists" });
         }
+
+        // Check if URL is active
+        if (!doc.isActive) {
+            return res.status(404).json({ message: "Short URL is inactive" });
+        }
+
+        // Increment click count
+        doc.clickCount = (doc.clickCount || 0) + 1;
+        await doc.save();
 
         const originalUrl = doc.originalUrl;
 
@@ -76,7 +90,10 @@ export const updateShortURLController = async (req, res) => {
         const { shortURL } = req.params;
         const updateData = req.body;
 
-        const existed = await ShortURL.findOne({ shortCode: shortURL });
+        // Ensure shortURL is treated as string
+        const codeToSearch = String(shortURL);
+
+        const existed = await ShortURL.findOne({ shortCode: codeToSearch });
         if (!existed) {
             return res.status(404).json({ 
                 status: "Not Found",
@@ -84,7 +101,7 @@ export const updateShortURLController = async (req, res) => {
         }
 
         const updatedRecord = await ShortURL.findOneAndUpdate(
-            { shortCode: shortURL },
+            { shortCode: codeToSearch },
             { ...updateData },
             { new: true }
         );
@@ -105,19 +122,28 @@ export const updateShortURLController = async (req, res) => {
 export const deleteShortURLController = async (req, res) => {
     try {
         const { shortURL } = req.params;
-        const existed = await ShortURL.findOne({ shortCode: shortURL });
+        
+        // Ensure shortURL is treated as string
+        const codeToSearch = String(shortURL);
+        
+        const existed = await ShortURL.findOne({ shortCode: codeToSearch });
         if (!existed) {
             return res.status(404).json({ 
                 status: "Not Found",
                 message: "Short URL not exists" });
         }
 
-        // soft delete
+        if (!existed.isActive) {
+            // Hard delete if already inactive
+            await ShortURL.deleteOne({ shortCode: codeToSearch });
+            return res.status(200).json({
+                message: "Short URL permanently deleted"
+            });
+        }
+
+        // Soft delete (set inactive)
         existed.isActive = false;
         await existed.save();
-
-        //hard delete
-        // await ShortURL.findOneAndDelete({ shortCode: shortURL });
 
         res.status(200).json({
             message: "Short URL deleted successfully"

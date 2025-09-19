@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import Service from '../utils/http';
-import { Anchor, Table, Text, ActionIcon, Tooltip, Group, Select, Pagination, Modal, TextInput, Button, Checkbox } from '@mantine/core';
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { Anchor, Table, Text, ActionIcon, Tooltip, Group, Select, Pagination, Modal, TextInput, Button, Checkbox, Switch, Paper } from '@mantine/core';
+import { IconEdit, IconTrash, IconSearch } from "@tabler/icons-react";
 import { notifications } from '@mantine/notifications';
 import styles from './MyUrls.module.css';
 
@@ -14,11 +14,14 @@ const MyUrls = () => {
     const [editUrl, setEditUrl] = useState(null);
     const [editOriginalUrl, setEditOriginalUrl] = useState("");
     const [editTitle, setEditTitle] = useState("");
+    const [editStatus, setEditStatus] = useState(true);
     const [editLoading, setEditLoading] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteUrl, setDeleteUrl] = useState(null);
     const [deleteChecked, setDeleteChecked] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchField, setSearchField] = useState("all");
 
     const getData = async () => {
         try {
@@ -47,19 +50,60 @@ const MyUrls = () => {
         }).replace(',', ' |');
     };
 
-    // Pagination logic
-    const totalPages = Math.max(1, Math.ceil(data.length / limit));
-    const paginatedData = data.slice((page - 1) * limit, page * limit);
+    // Filter data based on search term and selected field
+    const filteredData = data.filter((url) => {
+        if (!searchTerm) return true;
+        const searchLower = searchTerm.toLowerCase().trim();
+        
+        switch (searchField) {
+            case 'originalUrl':
+                return url.originalUrl?.toLowerCase().includes(searchLower) || false;
+            case 'shortCode':
+                return url.shortCode?.toLowerCase().includes(searchLower) || false;
+            case 'title':
+                // Handle title search more reliably
+                if (!url.title || url.title === null || url.title === undefined) {
+                    // If no title, only match if searching for "na"
+                    return searchLower === "na";
+                }
+                // Convert title to string and search
+                const titleStr = String(url.title).toLowerCase();
+                return titleStr.includes(searchLower);
+            case 'all':
+            default:
+                // Check original URL
+                const urlMatch = url.originalUrl?.toLowerCase().includes(searchLower) || false;
+                
+                // Check short code
+                const codeMatch = url.shortCode?.toLowerCase().includes(searchLower) || false;
+                
+                // Check title
+                let titleMatch = false;
+                if (!url.title || url.title === null || url.title === undefined) {
+                    titleMatch = searchLower === "na";
+                } else {
+                    const titleStr = String(url.title).toLowerCase();
+                    titleMatch = titleStr.includes(searchLower);
+                }
+                
+                return urlMatch || codeMatch || titleMatch;
+        }
+    });
 
-    // Reset to first page if limit changes and current page is out of bounds
+    // Pagination logic
+    const totalPages = Math.max(1, Math.ceil(filteredData.length / limit));
+    const paginatedData = filteredData.slice((page - 1) * limit, page * limit);
+
+    // Reset to first page if search changes or limit changes and current page is out of bounds
     useEffect(() => {
         if (page > totalPages) setPage(1);
-    }, [limit, totalPages]);
+    }, [limit, totalPages, searchTerm]);
 
     const handleEditClick = (urlObj) => {
         setEditUrl(urlObj);
         setEditOriginalUrl(urlObj.originalUrl || "");
         setEditTitle(urlObj.title || "");
+        setEditStatus(urlObj.isActive ?? true);
         setEditModalOpen(true);
     };
 
@@ -68,6 +112,7 @@ const MyUrls = () => {
         setEditUrl(null);
         setEditOriginalUrl("");
         setEditTitle("");
+        setEditStatus(true);
     };
 
     const handleDeleteClick = (urlObj) => {
@@ -88,9 +133,10 @@ const MyUrls = () => {
         try {
             const payload = {
                 originalUrl: editOriginalUrl,
-                title: editTitle
+                title: editTitle,
+                isActive: editStatus
             };
-            const response = await service.put(`s/${editUrl.shortCode}`, payload);
+            await service.put(`s/${editUrl.shortCode}`, payload);
             notifications.show({
                 title: 'URL Updated',
                 message: 'Short URL updated successfully!',
@@ -132,27 +178,76 @@ const MyUrls = () => {
         }
     };
 
+    // Determine delete modal message and button text
+    const isDeleteInactive = deleteUrl && !deleteUrl.isActive;
+    const deleteModalMessage = isDeleteInactive
+        ? "This will permanently delete the URL from the database. Are you sure?"
+        : "Deleting will make this URL inactive. You can delete it permanently later.";
+    const deleteButtonText = isDeleteInactive ? "Delete Permanently" : "Delete & Set Inactive";
+
+    const getSearchPlaceholder = () => {
+        switch (searchField) {
+            case 'originalUrl':
+                return 'Search by original URL...';
+            case 'shortCode':
+                return 'Search by short code...';
+            case 'title':
+                return 'Search by title...';
+            case 'all':
+            default:
+                return 'Search by URL, title, or short code...';
+        }
+    };
+
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>My Shortened URLs</h1>
             <div className={styles.controlsRow}>
-                <label className={styles.dropdownLabel} htmlFor="show-per-page">Show per page:</label>
-                <Select
-                    id="show-per-page"
-                    value={String(limit)}
-                    onChange={val => setLimit(Number(val))}
-                    data={[
-                        { value: "5", label: "5" },
-                        { value: "10", label: "10" },
-                        { value: "20", label: "20" },
-                        { value: "50", label: "50" },
-                        { value: String(data.length), label: "All" }
-                    ]}
-                    style={{ width: 100, marginLeft: "0.5rem" }}
-                    size="md"
-                    radius="md"
-                    className={styles.dropdownSelect}
-                />
+                <div className={styles.searchGroup}>
+                    <Select
+                        value={searchField}
+                        onChange={setSearchField}
+                        data={[
+                            { value: "all", label: "All Fields" },
+                            { value: "originalUrl", label: "Original URL" },
+                            { value: "shortCode", label: "Short Code" },
+                            { value: "title", label: "Title" }
+                        ]}
+                        style={{ width: 140, marginRight: "0.5rem" }}
+                        size="md"
+                        radius="md"
+                        className={styles.searchFieldSelect}
+                    />
+                    <TextInput
+                        placeholder={getSearchPlaceholder()}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        leftSection={<IconSearch size={16} />}
+                        style={{ flex: 1 }}
+                        size="md"
+                        radius="md"
+                        className={styles.searchInput}
+                    />
+                </div>
+                <div className={styles.paginationGroup}>
+                    <label className={styles.dropdownLabel} htmlFor="show-per-page">Show per page:</label>
+                    <Select
+                        id="show-per-page"
+                        value={String(limit)}
+                        onChange={val => setLimit(Number(val))}
+                        data={[
+                            { value: "5", label: "5" },
+                            { value: "10", label: "10" },
+                            { value: "20", label: "20" },
+                            { value: "50", label: "50" },
+                            { value: String(filteredData.length), label: "All" }
+                        ]}
+                        style={{ width: 100, marginLeft: "0.5rem" }}
+                        size="md"
+                        radius="md"
+                        className={styles.dropdownSelect}
+                    />
+                </div>
             </div>
             <div className={styles.tableWrapper}>
                 <Table className={styles.table} striped highlightOnHover withColumnBorders>
@@ -184,13 +279,18 @@ const MyUrls = () => {
                                 </Table.Td>
 
                                 <Table.Td className={styles.cell}>
-                                    <Anchor 
-                                        href={`${service.getBaseURL()}/api/s/${d?.shortCode}`}
-                                        target="_blank"
-                                        className={styles.link}
-                                    >
-                                        {d?.shortCode}
-                                    </Anchor>
+                                    {/* Short URL: disable if inactive */}
+                                    {d?.isActive ? (
+                                        <Anchor 
+                                            href={`${service.getBaseURL()}/api/s/${d?.shortCode}`}
+                                            target="_blank"
+                                            className={styles.link}
+                                        >
+                                            {d?.shortCode}
+                                        </Anchor>
+                                    ) : (
+                                        <span className={styles.inactiveShortUrl}>{d?.shortCode} <span className={styles.inactiveLabel}>(Inactive)</span></span>
+                                    )}
                                 </Table.Td>
 
                                 <Table.Td className={styles.cell}>
@@ -239,6 +339,11 @@ const MyUrls = () => {
                         ))}
                     </Table.Tbody>
                 </Table>
+                {filteredData.length === 0 && searchTerm && (
+                    <Text ta="center" py="xl" color="dimmed">
+                        No URLs found matching "{searchTerm}"
+                    </Text>
+                )}
             </div>
             <div className={styles.paginationRow}>
                 <Pagination
@@ -254,14 +359,6 @@ const MyUrls = () => {
             <Modal
                 opened={editModalOpen}
                 onClose={handleEditClose}
-                title={
-                    <div className={styles.editModalTitle}>
-                        <span>Edit URL</span>
-                        <div className={styles.editModalSubtitle}>
-                            You can update the title or original URL below.
-                        </div>
-                    </div>
-                }
                 centered
                 overlayProps={{
                     backgroundOpacity: 0.55,
@@ -272,8 +369,24 @@ const MyUrls = () => {
                     content: styles.editModalContent,
                     header: styles.editModalHeader,
                 }}
+                withCloseButton={false}
             >
-                <div className={styles.editModalBody}>
+                <div className={styles.modalHeader}>
+                    <span className={styles.editModalTitle}>Edit URL</span>
+                    <Button
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        radius="xl"
+                        onClick={handleEditClose}
+                    >
+                        Close
+                    </Button>
+                </div>
+                <div className={styles.modalSection}>
+                    <Text size="sm" color="dimmed" mb="md">
+                        Update the details of your short URL below.
+                    </Text>
                     <TextInput
                         label="Original URL"
                         value={editOriginalUrl}
@@ -293,39 +406,41 @@ const MyUrls = () => {
                         size="md"
                         placeholder="Enter a title (optional)"
                     />
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2rem", gap: "1rem" }}>
-                        <Button
-                            variant="gradient"
-                            gradient={{ from: "violet", to: "indigo" }}
+                    <div className={styles.switchSection}>
+                        <Switch
+                            checked={editStatus}
+                            onChange={e => setEditStatus(e.currentTarget.checked)}
+                            label={editStatus ? "Active" : "Inactive"}
+                            color={editStatus ? "teal" : "red"}
+                            size="md"
                             radius="md"
-                            onClick={handleEditClose}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="gradient"
-                            gradient={{ from: "teal", to: "violet" }}
-                            radius="md"
-                            loading={editLoading}
-                            onClick={handleEditSave}
-                        >
-                            Update Original URL
-                        </Button>
+                        />
                     </div>
+                </div>
+                <div className={styles.modalFooter}>
+                    <Button
+                        variant="gradient"
+                        gradient={{ from: "violet", to: "indigo" }}
+                        radius="md"
+                        onClick={handleEditClose}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="gradient"
+                        gradient={{ from: "teal", to: "violet" }}
+                        radius="md"
+                        loading={editLoading}
+                        onClick={handleEditSave}
+                    >
+                        Update
+                    </Button>
                 </div>
             </Modal>
             {/* Delete Modal */}
             <Modal
                 opened={deleteModalOpen}
                 onClose={handleDeleteClose}
-                title={
-                    <div className={styles.deleteModalTitle}>
-                        <span>Delete URL</span>
-                        <div className={styles.deleteModalSubtitle}>
-                            Are you sure you want to delete this URL? This action cannot be undone.
-                        </div>
-                    </div>
-                }
                 centered
                 overlayProps={{
                     backgroundOpacity: 0.55,
@@ -336,8 +451,24 @@ const MyUrls = () => {
                     content: styles.deleteModalContent,
                     header: styles.deleteModalHeader,
                 }}
+                withCloseButton={false}
             >
-                <div className={styles.deleteModalBody}>
+                <div className={styles.modalHeader}>
+                    <span className={styles.deleteModalTitle}>Delete URL</span>
+                    <Button
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        radius="xl"
+                        onClick={handleDeleteClose}
+                    >
+                        Close
+                    </Button>
+                </div>
+                <div className={styles.modalSection}>
+                    <Text size="sm" color="dimmed" mb="md">
+                        {deleteModalMessage}
+                    </Text>
                     <Text className={styles.deleteModalUrl}>
                         <b>Short URL:</b> {deleteUrl?.shortCode}
                     </Text>
@@ -347,32 +478,36 @@ const MyUrls = () => {
                     <Checkbox
                         checked={deleteChecked}
                         onChange={e => setDeleteChecked(e.currentTarget.checked)}
-                        label="I am sure I want to delete this URL"
+                        label={isDeleteInactive
+                            ? "I am sure I want to permanently delete this URL"
+                            : "I am sure I want to delete this URL (it will become inactive)"}
                         required
                         radius="md"
                         size="md"
                         className={styles.deleteModalCheckbox}
                         mt="md"
                     />
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2rem", gap: "1rem" }}>
-                        <Button
-                            variant="default"
-                            radius="md"
-                            onClick={handleDeleteClose}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="gradient"
-                            gradient={{ from: "red", to: "violet" }}
-                            radius="md"
-                            disabled={!deleteChecked}
-                            loading={deleteLoading}
-                            onClick={handleDeleteConfirm}
-                        >
-                            Delete
-                        </Button>
-                    </div>
+                </div>
+                <div className={styles.modalFooter}>
+                    <Button
+                        variant="default"
+                        radius="md"
+                        onClick={handleDeleteClose}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="gradient"
+                        gradient={isDeleteInactive
+                            ? { from: "red", to: "violet" }
+                            : { from: "orange", to: "violet" }}
+                        radius="md"
+                        disabled={!deleteChecked}
+                        loading={deleteLoading}
+                        onClick={handleDeleteConfirm}
+                    >
+                        {deleteButtonText}
+                    </Button>
                 </div>
             </Modal>
         </div>
