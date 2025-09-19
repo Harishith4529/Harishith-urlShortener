@@ -9,6 +9,7 @@ import { config } from "./config.js";
 import authRouter from "./routes/authRouter.js";
 import hwRouter from "./routes/helloWorldRouter.js";
 import userRouter from "./routes/userRouter.js";
+import shortURLRouter from "./routes/shortURLRouter.js";
 const app = express();
 
 // middlewares
@@ -34,6 +35,7 @@ connectDB();
 app.use("/api/auth", authRouter);
 app.use("/api/hello", hwRouter);
 app.use("/api/user", userRouter);
+app.use("/api/s", shortURLRouter);
 
 app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
