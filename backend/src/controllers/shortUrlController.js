@@ -27,7 +27,10 @@ export const createShortURL = async (req, res) => {
             shortCode: newNanoId,
             expiresAt: new Date(expiryDate),
             userId,
+            isActive: true
         });
+
+        console.log("Created ShortURL:", newSortCode); // Add this line
 
         res.status(200).json({
             message: "Short URL created successfully",

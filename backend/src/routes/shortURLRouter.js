@@ -8,4 +8,3 @@ shortURLRouter.post("/", authMiddleWare, createShortURL);
 shortURLRouter.get("/:shortCode", redirectToOriginalUrl);
 
 export default shortURLRouter;
-export default shortURLRouter;

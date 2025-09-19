@@ -23,7 +23,7 @@ const UrlShortener = () => {
       expiryDate,
       title,
     });
-    setShortUrlData(response.data);
+    setShortUrlData(response); // response.data or response depending on your http util
   };
 
   const formatDate = (dateString) => {
