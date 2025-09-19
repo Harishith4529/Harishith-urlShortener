@@ -50,6 +50,40 @@
 .cell {
     padding: 1rem !important;
     border-bottom: 1px solid rgba(118, 75, 162, 0.2);
+    vertical-align: middle;
+}
+
+.urlCell {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+}
+
+.urlCell:hover .urlTooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.urlTooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 110%;
+    background: #fff;
+    color: #764ba2;
+    border: 1px solid #764ba2;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(31,38,135,0.12);
+    transition: opacity 0.2s;
+    min-width: 220px;
+    max-width: 400px;
+    word-break: break-all;
 }
 
 .link {

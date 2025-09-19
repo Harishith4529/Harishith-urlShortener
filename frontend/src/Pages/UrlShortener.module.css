@@ -105,23 +105,43 @@
     display: block;
 }
 
+.shortUrlGroup {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.10);
+}
+
 .generatedUrl {
     display: inline-block;
     max-width: 100%;
     word-break: break-all;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: none;
     color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
+    padding: 0;
+    border-radius: 0;
     font-size: 1rem;
-    margin-bottom: 0.5rem;
-    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.1);
-    transition: box-shadow 0.2s;
+    margin-bottom: 0;
+    box-shadow: none;
+    transition: text-decoration 0.2s;
 }
 
 .generatedUrl:hover {
-    box-shadow: 0 4px 16px rgba(31, 38, 135, 0.18);
     text-decoration: underline;
+}
+
+.copyButton {
+    margin-left: 0.5rem;
+    background: rgba(255,255,255,0.18);
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.copyButton:hover {
+    background: rgba(255,255,255,0.35);
 }
 
 .generatedOriginalUrl {

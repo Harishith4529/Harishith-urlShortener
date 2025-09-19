@@ -37,8 +37,11 @@ app.use("/api/hello", hwRouter);
 app.use("/api/user", userRouter);
 app.use("/api/s", shortURLRouter);
 
+// Static and catch-all routes should come after API routes
 app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
-app.get("/*name", (req, res) => { res.sendFile(path.join(__dirname, "../../frontend/dist/index.html")) });
+app.get("/*name", (req, res) => { 
+  res.sendFile(path.join(__dirname, "../../frontend/dist/index.html")) 
+});
 
 app.listen(config.PORT, () => console.log(`Server on PORT: ${config.PORT}`));

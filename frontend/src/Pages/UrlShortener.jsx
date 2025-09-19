@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { TextInput, Center, Stack, Text, Button, Anchor, Paper } from "@mantine/core";
+import { TextInput, Center, Stack, Text, Button, Anchor, Paper, ActionIcon, Tooltip, Group } from "@mantine/core";
+import { IconCopy, IconCheck } from '@tabler/icons-react';
 import Service from "../utils/http";
 import styles from './UrlShortener.module.css';
 import {QRCodeSVG} from 'qrcode.react';
@@ -11,6 +12,7 @@ const UrlShortener = () => {
   const [expiryDate, setExpiryDate] = useState("");
   const [shortUrlData, setShortUrlData] = useState(null);
   const [isQrExpanded, setIsQrExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const service = new Service();
 
@@ -21,7 +23,7 @@ const UrlShortener = () => {
       expiryDate,
       title,
     });
-    setShortUrlData(response);
+    setShortUrlData(response.data);
   };
 
   const formatDate = (dateString) => {
@@ -36,6 +38,18 @@ const UrlShortener = () => {
       second: '2-digit',
       hour12: false
     }).replace(',', ' |');
+  };
+
+  const shortUrl = shortUrlData?.data?.shortCode
+    ? `${service.getBaseURL()}/api/s/${shortUrlData?.data?.shortCode}`
+    : "";
+
+  const handleCopy = () => {
+    if (shortUrl) {
+      navigator.clipboard.writeText(shortUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   };
 
   return (
@@ -96,20 +110,34 @@ const UrlShortener = () => {
               </Button>
           </> : 
           <>
-              <Anchor 
-                href={`${service.getBaseURL()}/api/s/${shortUrlData?.data?.shortCode}`} 
-                target="_blank"
-                className={styles.generatedUrl}
-              >
-                {`${service.getBaseURL()}/api/s/${shortUrlData?.data?.shortCode}`}
-              </Anchor>
+              <div className={styles.shortUrlGroup}>
+                <Anchor 
+                  href={shortUrl}
+                  target="_blank"
+                  className={styles.generatedUrl}
+                  style={{ flex: 1, marginBottom: 0, marginRight: "0.5rem" }}
+                >
+                  {shortUrl}
+                </Anchor>
+                <Tooltip label={copied ? "Copied!" : "Copy"} withArrow>
+                  <ActionIcon
+                    color={copied ? "teal" : "violet"}
+                    variant="filled"
+                    onClick={handleCopy}
+                    aria-label="Copy short URL"
+                    className={styles.copyButton}
+                  >
+                    {copied ? <IconCheck size={20} /> : <IconCopy size={20} />}
+                  </ActionIcon>
+                </Tooltip>
+              </div>
               <div className={styles.qrContainer}>
                 <div 
                   className={isQrExpanded ? styles.qrCodeExpanded : styles.qrCode}
                   onClick={() => setIsQrExpanded(!isQrExpanded)}
                 >
                   <QRCodeSVG 
-                    value={`${service.getBaseURL()}/api/s/${shortUrlData?.data?.shortCode}`}
+                    value={shortUrl}
                     size={isQrExpanded ? 256 : 128}
                   />
                 </div>

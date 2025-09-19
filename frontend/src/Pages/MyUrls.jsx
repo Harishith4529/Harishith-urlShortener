@@ -9,7 +9,7 @@ const MyUrls = () => {
     const getData = async () => {
         try {
             const response = await service.get("user/my/urls");
-            setData(response.shortURLs);
+            setData(response.data); // <-- update here
             console.log(response);
         } catch (error) {
             console.error(error);
@@ -53,15 +53,17 @@ const MyUrls = () => {
                                     <Text>{d?.title || "NA"}</Text>
                                 </Table.Td>
 
-                                <Table.Td className={styles.cell}>
+                                <Table.Td className={`${styles.cell} ${styles.urlCell}`}>
                                     <Anchor 
                                         href={d?.originalUrl} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         className={styles.link}
+                                        title={d?.originalUrl}
                                     >
                                         {d?.originalUrl}
                                     </Anchor>
+                                    <span className={styles.urlTooltip}>{d?.originalUrl}</span>
                                 </Table.Td>
 
                                 <Table.Td className={styles.cell}>

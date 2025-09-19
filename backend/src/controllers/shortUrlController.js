@@ -42,3 +42,27 @@ export const createShortURL = async (req, res) => {
         });
     }
 }
+
+
+export const redirectToOriginalUrl = async (req, res) => {
+    try {
+        const { shortCode } = req.params;
+
+        const doc = await ShortURL.findOne({ shortCode });
+        if (!doc) {
+            return res.status(404).json({ message: "Short URL not exists" });
+        }
+
+        const originalUrl = doc.originalUrl;
+
+        // Redirect to the original URL
+        return res.redirect(originalUrl);
+        
+    } catch (error) {
+        console.error("Error redirecting to original URL:", error.message);
+        return res.status(500).json({
+            message: "error from redirecting to original URL",
+            error: "Internal Server Error"
+        });
+    }
+}
